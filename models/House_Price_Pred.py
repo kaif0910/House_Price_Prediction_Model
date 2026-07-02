@@ -1,6 +1,6 @@
-from torch.nn import nn
+import torch.nn as nn
 
-class HousePriceModel(nn.module):
+class HousePriceModel(nn.Module):
     def __init__(self):
         super().__init__()
 
