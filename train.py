@@ -4,8 +4,27 @@ import torch.nn as nn
 from models.House_Price_Pred import HousePriceModel
 from utils.preprocess import load_data
 
+from utils.dataset import HouseDataset
+
+from torch.utils.data import DataLoader
+
+
+
 
 X_train, X_test, y_train, y_test, scaler = load_data()
+
+train_dataset = HouseDataset(
+    X_train,
+    y_train
+)
+
+print(len(train_dataset))
+
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=32,
+    shuffle=True
+)
 
 model = HousePriceModel()
 
@@ -26,36 +45,47 @@ for epoch in range(epochs):
 
     model.train()
 
-    prediction = model(X_train)
+    for X_batch, y_batch in train_loader:
 
-    loss = loss_fn(
-        prediction,
-        y_train
-    )
+        prediction = model(X_batch)
 
-    optimizer.zero_grad()
+        loss = loss_fn(prediction, y_batch)
 
-    loss.backward()
+        optimizer.zero_grad()
 
-    optimizer.step()
+        loss.backward()
 
-    if (epoch + 1) % 10 == 0:
-        print(
-            f"Epoch {epoch+1} Loss = {loss.item():.4f}"
-        )
+        optimizer.step()
+
+    print(f"Epoch {epoch+1} Loss = {loss.item():.4f}")
+
+
+test_dataset = HouseDataset(X_test, y_test)
+
+test_loader = DataLoader(
+    test_dataset,
+    batch_size=32,
+    shuffle=False
+)
 
 model.eval()
 
+test_loss = 0
+
 with torch.no_grad():
 
-    prediction = model(X_test)
+    for X_batch, y_batch in test_loader:
 
-    test_loss = loss_fn(
-        prediction,
-        y_test
-    )
+        prediction = model(X_batch)
 
-print("Test Loss:", test_loss.item())
+        loss = loss_fn(prediction, y_batch)
+
+        test_loss += loss.item()
+
+test_loss /= len(test_loader)
+
+print(f"Test Loss: {test_loss:.4f}")
+
 
 torch.save(
     model.state_dict(),
