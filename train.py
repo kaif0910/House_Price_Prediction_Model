@@ -8,10 +8,14 @@ from utils.dataset import HouseDataset
 
 from torch.utils.data import DataLoader
 
+import joblib
+
 
 
 
 X_train, X_test, y_train, y_test, scaler = load_data()
+joblib.dump(scaler,"scaler.pkl")
+
 
 train_dataset = HouseDataset(
     X_train,
