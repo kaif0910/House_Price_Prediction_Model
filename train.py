@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 from models.House_Price_Pred import HousePriceModel
 from utils.preprocess import load_data
@@ -9,6 +10,12 @@ from utils.dataset import HouseDataset
 from torch.utils.data import DataLoader
 
 import joblib
+
+from sklearn.metrics import(
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score
+)
 
 
 
@@ -76,11 +83,23 @@ model.eval()
 
 test_loss = 0
 
+all_predictions = []
+all_actuals = []
+
 with torch.no_grad():
 
     for X_batch, y_batch in test_loader:
 
         prediction = model(X_batch)
+
+        all_predictions.extend(
+            prediction.numpy()
+        )
+
+        all_actuals.extend(
+            y_batch.numpy()
+        )
+
 
         loss = loss_fn(prediction, y_batch)
 
@@ -89,6 +108,18 @@ with torch.no_grad():
 test_loss /= len(test_loader)
 
 print(f"Test Loss: {test_loss:.4f}")      #average loss
+
+        
+mae = mean_absolute_error(all_actuals, all_predictions)
+mse = mean_squared_error(all_actuals, all_predictions)
+rmse = mse ** 0.5
+r2 = r2_score(all_actuals, all_predictions)
+
+
+print(f"MAE : {mae:.4f}")
+print(f"MSE : {mse:.4f}")
+print(f"RMSE : {rmse:.4f}")
+print(f"R2 : {r2:.4f}")
 
 
 torch.save(
