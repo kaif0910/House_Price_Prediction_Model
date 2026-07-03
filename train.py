@@ -84,7 +84,7 @@ with torch.no_grad():
 
 test_loss /= len(test_loader)
 
-print(f"Test Loss: {test_loss:.4f}")
+print(f"Test Loss: {test_loss:.4f}")      #average loss
 
 
 torch.save(
