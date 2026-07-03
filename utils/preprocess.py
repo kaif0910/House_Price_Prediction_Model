@@ -55,14 +55,14 @@ def load_data():
     ).unsqueeze(1)
 
     y_val = torch.tensor(
-        y_val,
+        y_val.values,
         dtype=torch.float32
     ).unsqueeze(1)
 
     return (
         X_train,
         X_test,
-        X_val
+        X_val,
         y_train,
         y_test,
         y_val,
